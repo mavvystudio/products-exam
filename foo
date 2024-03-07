@@ -1,0 +1,162 @@
+const { useState, useEffect } = React;
+
+const AddProductForm = (props) => {
+  const [inputValue, setInputValue] = useState('');
+  
+  const handleChange = (event) => {
+    setInputValue(event.target.value);
+  };
+  
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    
+    props.onAddItem(inputValue);
+  }
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input value={inputValue} onChange={handleChange} placeholder="Title"/>
+    </form>
+  );
+}
+
+const SearchInput = (props) => {
+  const [inputValue, setInputValue] = useState('');
+  
+  useEffect(() => {
+    props.onSearch(inputValue);
+  }, [inputValue]);
+  
+  const handleChange = (event) => {
+    setInputValue(event.target.value);
+  };
+
+  return (
+    <input value={inputValue} onChange={handleChange}/>
+  );
+};
+
+const ProductItem = (props) => {
+  return (
+    <li>
+      <span>{props.item.title}</span>
+      <p>{props.item.description}</p>
+      <img src={props.item.images[0]} />
+    </li>
+  )
+}
+
+const ProductList = (props) => {
+  if (!props.items) {
+    return <p>No products found.</p>
+  }
+  return (
+    <ul>
+      {props.items.map((item) => (
+        <ProductItem
+          key={item.id}
+          item={item}
+        />
+      ))}
+    </ul>
+  )
+};
+
+const ProductApp = () => {
+  const {data, query} = useDummyJson('/products');
+  
+  useEffect(() => {
+    query();
+  }, []);
+  
+  const handleSearch = (searchText) => {
+    query({queryParams: `/search?q=${searchText}`});
+  };
+  
+  const handleOnAddItem = (title) => {
+    const data = {
+      input: {
+        title,
+      },
+      queryParams: '/add'
+    };
+    query(data);
+  }
+  
+  return (
+    <div className="root">
+      <SearchInput onSearch={handleSearch}/>
+      <AddProductForm onAddItem={handleOnAddItem}/>
+      <ProductList items={data?.products} />
+    </div>
+  );
+};
+
+ReactDOM.render(<ProductApp />, document.getElementById("main"));
+
+const baseUrl = 'https://dummyjson.com';
+
+function useDummyJson(endpoint) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  
+  const query = async (options = {queryParams: '', input: undefined }) => {
+    const url = `${baseUrl}${endpoint}${options.queryParams}`;
+    const hasInput = options.input !== undefined;
+    const method = hasInput ? 'POST' : 'GET';
+    const body = hasInput ? JSON.stringify(options.input) : null;
+ 
+    setLoading(true);
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body
+    });
+    const json = await res.json();
+
+    setData(json);
+    setLoading(false);
+  }
+  
+  return {
+    data,
+    loading,
+    query,
+  };
+
+}
+
+
+
+======
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #efefef;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+  column-gap: 1em;
+  row-gap: 1em;
+}
+
+li {
+  padding: 1em;
+  list-style: none;
+  border-radius: 16px;
+  background-color: #fff;
+}
+img {
+  display: block;
+  width: 100%;
+  height: 200px;
+}
