@@ -1,0 +1,28 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #efefef;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+  column-gap: 1em;
+  row-gap: 1em;
+}
+
+li {
+  padding: 1em;
+  list-style: none;
+  border-radius: 16px;
+  background-color: #fff;
+}
+img {
+  display: block;
+  width: 100%;
+  height: 200px;
+}
